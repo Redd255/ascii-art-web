@@ -46,7 +46,20 @@ func Checknewline(inpultsplit []string) bool {
 		return false
 	}
 }
+func CheckInput(input string) string {
+	var str string
+	for i := 0; i < len(input); i++ {
+		if input[i] < 32 || input[i] > 126 {
+			if i < len(input)-1 && input[i] == '\r' || input[i] == '\n' {
+				str += string(input[i])
+			}
+		} else {
+			str += string(input[i])
+		}
+	}
 
+	return str
+}
 func Draw(banner map[rune][]string, inpultsplit []string) string {
 	var output string
 	for idx, v := range inpultsplit {

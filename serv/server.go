@@ -2,7 +2,6 @@ package serv
 
 import (
 	asciiart "asciiart/src"
-	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
@@ -35,25 +34,21 @@ func AsciiWeb(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	textInput := r.FormValue("text")
-	if !asciiart.Checkchars(textInput) {
-		fmt.Fprintln(w, "invalid ascii string")
-		return
-	}
-    textLines := strings.Split(textInput, "\r\n")
+	textInput := asciiart.CheckInput(r.FormValue("text"))
+	textLines := strings.Split(textInput, "\r\n")
 	banner := r.FormValue("banner")
 	if banner != "standard" && banner != "shadow" && banner != "thinkertoy" {
-        maps, err := asciiart.MapBanner("standard")
-        if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
-        asciiArt := asciiart.Draw(maps, textLines)
-        err = tmpl.Execute(w, asciiArt)
-        if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
+		maps, err := asciiart.MapBanner("standard")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		asciiArt := asciiart.Draw(maps, textLines)
+		err = tmpl.Execute(w, asciiArt)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 	maps, err := asciiart.MapBanner(banner)
