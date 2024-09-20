@@ -1,32 +1,70 @@
 package serv
 
 import (
+	asciiart "asciiart/src"
 	"fmt"
+	"html/template"
 	"net/http"
-	"text/template"
+	"strings"
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
-	text := r.FormValue("banner")
-	switch r.URL.Path {
-	case "/":
-		tmpl := template.Must(template.ParseFiles("templates/index.html"))
-		tmpl.Execute(w, nil)
-	case "/ascii-art":
-		//body, err := io.ReadAll(r.Body)
-		// if err != nil {
-		// 	log.Println("Error reading request body:", err)
-		// 	w.WriteHeader(http.StatusBadRequest)
-		// 	return
-		// }		
-		tmpl := template.Must(template.ParseFiles("templates/index.html"))
-		dynamicText := text
+var tmpl = template.Must(template.ParseFiles("templates/index.html"))
 
-		// Execute the template, inserting dynamicText into {{.}}
-		if err := tmpl.Execute(w, dynamicText); err != nil {
-			http.Error(w, err.Error(), 404)
-		}
-	default:
-		fmt.Fprintf(w, "Sorry, no handler for path %q", r.URL.Path)
+func Index(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+	err := tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+func AsciiWeb(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+	if r.Method != "POST" {
+		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	textInput := r.FormValue("text")
+	if !asciiart.Checkchars(textInput) {
+		fmt.Fprintln(w, "invalid ascii string")
+		return
+	}
+    textLines := strings.Split(textInput, "\r\n")
+	banner := r.FormValue("banner")
+	if banner != "standard" && banner != "shadow" && banner != "thinkertoy" {
+        maps, err := asciiart.MapBanner("standard")
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+        asciiArt := asciiart.Draw(maps, textLines)
+        err = tmpl.Execute(w, asciiArt)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+		return
+	}
+	maps, err := asciiart.MapBanner(banner)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	asciiArt := asciiart.Draw(maps, textLines)
+	err = tmpl.Execute(w, asciiArt)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ASCII Art Generator</title>
 </head>
-<body>
+<body style="text-align: center;">
     <h1>ASCII Art Generator</h1>
     <form action="/ascii-art" method="POST">
         <label for="text">Enter text:</label>
@@ -13,14 +13,14 @@
 
         <label>Select a banner:</label><br>
         <input type="radio" id="standard" name="banner" value="standard" checked>
-        <label for="standard">Standard</label><br>
+        <label for="standard">Standard</label>
         <input type="radio" id="shadow" name="banner" value="shadow">
-        <label for="shadow">Shadow</label><br>
+        <label for="shadow">Shadow</label>
         <input type="radio" id="thinkertoy" name="banner" value="thinkertoy">
         <label for="thinkertoy">Thinkertoy</label><br><br>
 
         <input type="submit" value="Generate ASCII Art">
     </form>
-    <p id = pp>{{.}}</p>
+    <pre id = pp>{{.}}</pre>
 </body>
 </html>

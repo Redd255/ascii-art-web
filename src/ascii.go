@@ -16,7 +16,7 @@ func Checkchars(s string) bool {
 }
 
 func MapBanner(filename string) (map[rune][]string, error) {
-	data, err := os.ReadFile(filename)
+	data, err := os.ReadFile("banners/"+filename+".txt")
 	if err != nil {
 		return nil, err
 	}
