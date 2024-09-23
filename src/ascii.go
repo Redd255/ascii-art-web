@@ -1,11 +1,11 @@
 package asciiart
 
 import (
-	"fmt"
 	"os"
 	"strings"
 )
 
+// check if the character is printable
 func Checkchars(s string) bool {
 	for _, c := range s {
 		if c < 32 || c > 126 {
@@ -15,8 +15,9 @@ func Checkchars(s string) bool {
 	return true
 }
 
+// mapping
 func MapBanner(filename string) (map[rune][]string, error) {
-	data, err := os.ReadFile("banners/"+filename+".txt")
+	data, err := os.ReadFile("banners/" + filename + ".txt")
 	if err != nil {
 		return nil, err
 	}
@@ -33,41 +34,38 @@ func MapBanner(filename string) (map[rune][]string, error) {
 	return banner, nil
 }
 
+// check there is newline
 func Checknewline(inpultsplit []string) bool {
-	c := 0
 	for _, line := range inpultsplit {
 		if len(line) != 0 {
-			c++
+			return false
 		}
 	}
-	if c == 0 {
-		return true
-	} else {
-		return false
-	}
+	return true
 }
-func CheckInput(input string) string {
-	var str string
-	for i := 0; i < len(input); i++ {
-		if input[i] < 32 || input[i] > 126 {
-			if i < len(input)-1 && input[i] == '\r' || input[i] == '\n' {
-				str += string(input[i])
-			}
-		} else {
-			str += string(input[i])
-		}
-	}
 
-	return str
+func CheckInput(input string) string {
+	var output []byte
+	for i := 0; i < len(input); i++ {
+		char := input[i]
+		// Allow only printable ASCII characters or line breaks
+		if (char >= 32 && char <= 126) || char == '\r' || char == '\n' {
+			output = append(output, char)
+		}
+	}
+	// Convert the byte slice back to a string
+	return string(output)
 }
+
+// drawing the result
 func Draw(banner map[rune][]string, inpultsplit []string) string {
 	var output string
 	for idx, v := range inpultsplit {
 		if Checknewline(inpultsplit) && idx != len(inpultsplit)-1 {
-			fmt.Println()
+			output += "\n"
 			continue
 		} else if len(v) == 0 && !Checknewline(inpultsplit) {
-			fmt.Println()
+			output += "\n"
 		} else if len(v) != 0 && !Checknewline(inpultsplit) {
 			for i := 0; i < 8; i++ {
 				for j := 0; j < len(v); j++ {
@@ -79,4 +77,3 @@ func Draw(banner map[rune][]string, inpultsplit []string) string {
 	}
 	return output
 }
-

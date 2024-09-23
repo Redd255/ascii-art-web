@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 )
+
 // global variable containing the template
 var tmpl = template.Must(template.ParseFiles("templates/index.html"))
 
@@ -44,7 +45,8 @@ func AsciiWeb(w http.ResponseWriter, r *http.Request) {
 	//get the banner from the request
 	banner := r.FormValue("banner")
 	if banner != "standard" && banner != "shadow" && banner != "thinkertoy" {
-		banner = "standard"
+		http.Error(w, "Invalid banner", http.StatusBadRequest)
+		return
 	}
 	maps, err := asciiart.MapBanner(banner)
 	if err != nil {
